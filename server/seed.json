@@ -1,0 +1,346 @@
+{
+  "departments": [
+    {
+      "id": "d-rev-na",
+      "name": "Commercial — North America",
+      "entityId": "e-us",
+      "owner": "Daniel Ross",
+      "revenue": 184200000,
+      "expense": 96400000,
+      "budget": 98000000,
+      "headcount": 520
+    },
+    {
+      "id": "d-rev-emea",
+      "name": "Commercial — EMEA",
+      "entityId": "e-eu",
+      "owner": "Ines Mueller",
+      "revenue": 121800000,
+      "expense": 71900000,
+      "budget": 70000000,
+      "headcount": 380
+    },
+    {
+      "id": "d-rev-uk",
+      "name": "Commercial — UK",
+      "entityId": "e-uk",
+      "owner": "Oliver Grant",
+      "revenue": 68400000,
+      "expense": 39200000,
+      "budget": 41000000,
+      "headcount": 210
+    },
+    {
+      "id": "d-rev-apac",
+      "name": "Commercial — APAC",
+      "entityId": "e-jp",
+      "owner": "Kenji Watanabe",
+      "revenue": 54900000,
+      "expense": 34600000,
+      "budget": 33500000,
+      "headcount": 190
+    },
+    {
+      "id": "d-eng",
+      "name": "Engineering",
+      "entityId": "e-us",
+      "owner": "Mia Patel",
+      "revenue": 0,
+      "expense": 142700000,
+      "budget": 138000000,
+      "headcount": 860
+    },
+    {
+      "id": "d-ops",
+      "name": "Operations & Supply",
+      "entityId": "e-eu",
+      "owner": "Lars Berg",
+      "revenue": 0,
+      "expense": 88300000,
+      "budget": 91000000,
+      "headcount": 640
+    },
+    {
+      "id": "d-mkt",
+      "name": "Marketing",
+      "entityId": "e-us",
+      "owner": "Ava Liu",
+      "revenue": 0,
+      "expense": 46100000,
+      "budget": 44000000,
+      "headcount": 180
+    },
+    {
+      "id": "d-ga",
+      "name": "General & Administrative",
+      "entityId": "e-us",
+      "owner": "Marcus Reed",
+      "revenue": 0,
+      "expense": 38900000,
+      "budget": 40500000,
+      "headcount": 240
+    },
+    {
+      "id": "d-rd",
+      "name": "Research",
+      "entityId": "e-sg",
+      "owner": "Priya Nair",
+      "revenue": 0,
+      "expense": 31400000,
+      "budget": 29000000,
+      "headcount": 145
+    },
+    {
+      "id": "d-treasury",
+      "name": "Treasury & Risk",
+      "entityId": "e-uk",
+      "owner": "Helen Cross",
+      "revenue": 12600000,
+      "expense": 9800000,
+      "budget": 10200000,
+      "headcount": 62
+    }
+  ],
+  "approvals": [
+    {
+      "id": "AP-4821",
+      "title": "Frankfurt data centre expansion",
+      "description": "Second cage at the FRA4 facility plus 18 months of committed cross-connect capacity, required before the EU data residency deadline.",
+      "requester": "Mia Patel",
+      "departmentId": "d-eng",
+      "amount": 4280000,
+      "currency": "EUR",
+      "submitted": "2026-09-18",
+      "status": "pending",
+      "priority": "critical",
+      "policy": "Capex over €2M requires CFO and Board Finance Committee sign-off.",
+      "chain": [
+        {
+          "role": "Department head",
+          "name": "Mia Patel",
+          "state": "signed"
+        },
+        {
+          "role": "Group Controller",
+          "name": "Sarah Kim",
+          "state": "waiting"
+        },
+        {
+          "role": "CFO",
+          "name": "Robert Vance",
+          "state": "blocked"
+        },
+        {
+          "role": "Board Finance Committee",
+          "name": "Committee",
+          "state": "blocked"
+        }
+      ]
+    },
+    {
+      "id": "AP-4818",
+      "title": "APAC contract manufacturer retainer",
+      "description": "Twelve-month retainer with the Osaka assembly partner, replacing the expiring per-unit arrangement.",
+      "requester": "Kenji Watanabe",
+      "departmentId": "d-ops",
+      "amount": 268400000,
+      "currency": "JPY",
+      "submitted": "2026-09-16",
+      "status": "pending",
+      "priority": "elevated",
+      "policy": "Multi-year supplier commitments require Procurement and Controller sign-off.",
+      "chain": [
+        {
+          "role": "Department head",
+          "name": "Lars Berg",
+          "state": "signed"
+        },
+        {
+          "role": "Procurement",
+          "name": "Nina Okonjo",
+          "state": "signed"
+        },
+        {
+          "role": "Group Controller",
+          "name": "Sarah Kim",
+          "state": "waiting"
+        }
+      ]
+    },
+    {
+      "id": "AP-4815",
+      "title": "Q4 brand campaign — North America",
+      "description": "Paid media, production and agency fees for the Q4 category campaign across the US and Canada.",
+      "requester": "Ava Liu",
+      "departmentId": "d-mkt",
+      "amount": 1940000,
+      "currency": "USD",
+      "submitted": "2026-09-15",
+      "status": "pending",
+      "priority": "standard",
+      "policy": "Marketing spend over $1M requires Controller sign-off.",
+      "chain": [
+        {
+          "role": "Department head",
+          "name": "Ava Liu",
+          "state": "signed"
+        },
+        {
+          "role": "Group Controller",
+          "name": "Sarah Kim",
+          "state": "waiting"
+        }
+      ]
+    },
+    {
+      "id": "AP-4809",
+      "title": "UK pension scheme top-up",
+      "description": "Deficit reduction contribution agreed with the trustees at the triennial valuation.",
+      "requester": "Helen Cross",
+      "departmentId": "d-treasury",
+      "amount": 3100000,
+      "currency": "GBP",
+      "submitted": "2026-09-12",
+      "status": "pending",
+      "priority": "critical",
+      "policy": "Pension contributions require CFO and Audit Committee sign-off.",
+      "chain": [
+        {
+          "role": "Treasury",
+          "name": "Helen Cross",
+          "state": "signed"
+        },
+        {
+          "role": "Group Controller",
+          "name": "Sarah Kim",
+          "state": "signed"
+        },
+        {
+          "role": "CFO",
+          "name": "Robert Vance",
+          "state": "waiting"
+        },
+        {
+          "role": "Audit Committee",
+          "name": "Committee",
+          "state": "blocked"
+        }
+      ]
+    },
+    {
+      "id": "AP-4802",
+      "title": "Singapore research headcount, 12 roles",
+      "description": "Twelve additional research engineers in Singapore, phased across Q4 and Q1.",
+      "requester": "Priya Nair",
+      "departmentId": "d-rd",
+      "amount": 2640000,
+      "currency": "SGD",
+      "submitted": "2026-09-09",
+      "status": "approved",
+      "priority": "elevated",
+      "policy": "Headcount additions above 10 FTE require Controller and People sign-off.",
+      "chain": [
+        {
+          "role": "Department head",
+          "name": "Priya Nair",
+          "state": "signed"
+        },
+        {
+          "role": "People",
+          "name": "Tomas Alvarez",
+          "state": "signed"
+        },
+        {
+          "role": "Group Controller",
+          "name": "Sarah Kim",
+          "state": "signed"
+        }
+      ]
+    },
+    {
+      "id": "AP-4797",
+      "title": "Legacy CRM licence renewal",
+      "description": "Three-year renewal of the legacy CRM ahead of the platform migration.",
+      "requester": "Daniel Ross",
+      "departmentId": "d-rev-na",
+      "amount": 1180000,
+      "currency": "USD",
+      "submitted": "2026-09-04",
+      "status": "rejected",
+      "priority": "standard",
+      "policy": "Software renewals over $1M require Controller sign-off.",
+      "chain": [
+        {
+          "role": "Department head",
+          "name": "Daniel Ross",
+          "state": "signed"
+        },
+        {
+          "role": "Group Controller",
+          "name": "Sarah Kim",
+          "state": "signed"
+        }
+      ]
+    },
+    {
+      "id": "AP-4791",
+      "title": "EMEA office consolidation",
+      "description": "Break fee and fit-out for consolidating three EMEA offices into the Munich hub.",
+      "requester": "Ines Mueller",
+      "departmentId": "d-ops",
+      "amount": 5420000,
+      "currency": "EUR",
+      "submitted": "2026-08-28",
+      "status": "approved",
+      "priority": "critical",
+      "policy": "Property commitments require CFO and Board Finance Committee sign-off.",
+      "chain": [
+        {
+          "role": "Department head",
+          "name": "Ines Mueller",
+          "state": "signed"
+        },
+        {
+          "role": "Group Controller",
+          "name": "Sarah Kim",
+          "state": "signed"
+        },
+        {
+          "role": "CFO",
+          "name": "Robert Vance",
+          "state": "signed"
+        },
+        {
+          "role": "Board Finance Committee",
+          "name": "Committee",
+          "state": "signed"
+        }
+      ]
+    },
+    {
+      "id": "AP-4786",
+      "title": "Cyber insurance renewal",
+      "description": "Annual renewal at a higher limit following the revised risk assessment.",
+      "requester": "Marcus Reed",
+      "departmentId": "d-ga",
+      "amount": 890000,
+      "currency": "USD",
+      "submitted": "2026-08-22",
+      "status": "approved",
+      "priority": "standard",
+      "policy": "Insurance renewals require Controller sign-off.",
+      "chain": [
+        {
+          "role": "Department head",
+          "name": "Marcus Reed",
+          "state": "signed"
+        },
+        {
+          "role": "Group Controller",
+          "name": "Sarah Kim",
+          "state": "signed"
+        }
+      ]
+    }
+  ]
+}

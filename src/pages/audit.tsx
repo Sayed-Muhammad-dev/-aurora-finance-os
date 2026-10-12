@@ -1,22 +1,36 @@
 import { useMemo, useState } from "react";
-import { ChevronLeft, ChevronRight, Download, Search, ShieldCheck } from "lucide-react";
-import { useApp } from "@/app-context";
-import { Badge, Button, Card, CardHeader, EmptyState } from "@/components/ui/primitives";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Download,
+  Search,
+  ShieldCheck,
+} from "lucide-react";
+import {
+  Badge,
+  Button,
+  Card,
+  CardHeader,
+  EmptyState,
+} from "@/components/ui/primitives";
 import { auditEvents } from "@/data/finance";
 import { cn, timestamp } from "@/lib/format";
+import { exportRows } from "@/lib/download";
 import type { AuditSeverity } from "@/types";
 
-const severityTone: Record<AuditSeverity, "neutral" | "info" | "warning" | "critical"> = {
+const severityTone: Record<
+  AuditSeverity,
+  "neutral" | "info" | "warning" | "critical"
+> = {
   info: "neutral",
   notice: "info",
   warning: "warning",
-  critical: "critical"
+  critical: "critical",
 };
 
 const PAGE_SIZE = 8;
 
 export function AuditPage() {
-  const { pushToast } = useApp();
   const [query, setQuery] = useState("");
   const [severity, setSeverity] = useState<AuditSeverity | "all">("all");
   const [page, setPage] = useState(1);
@@ -39,10 +53,12 @@ export function AuditPage() {
 
   const counts = useMemo(
     () => ({
-      critical: auditEvents.filter((event) => event.severity === "critical").length,
-      warning: auditEvents.filter((event) => event.severity === "warning").length
+      critical: auditEvents.filter((event) => event.severity === "critical")
+        .length,
+      warning: auditEvents.filter((event) => event.severity === "warning")
+        .length,
     }),
-    []
+    [],
   );
 
   return (
@@ -52,7 +68,7 @@ export function AuditPage() {
           ["Events this period", String(auditEvents.length)],
           ["Critical events", String(counts.critical)],
           ["Warnings", String(counts.warning)],
-          ["Retention", "7 years"]
+          ["Retention", "Stored locally"],
         ].map(([label, value]) => (
           <div key={label} className="stat-card stat-card-plain">
             <p className="stat-label">{label}</p>
@@ -64,8 +80,9 @@ export function AuditPage() {
       <div className="notice notice-info">
         <ShieldCheck size={16} />
         <p>
-          The audit log is append-only. Entries cannot be edited or deleted by any role, including
-          administrators, and are retained for seven years to satisfy statutory requirements.
+          The audit log is append-only. Entries cannot be edited or deleted by
+          the application interface. Retention and backup policies are set by
+          the deployment operator; no statutory certification is claimed.
         </p>
       </div>
 
@@ -76,9 +93,7 @@ export function AuditPage() {
           action={
             <Button
               variant="secondary"
-              onClick={() =>
-                pushToast("Export queued", `${rows.length} audit events will be exported as CSV.`, "info")
-              }
+              onClick={() => exportRows(rows, "aurora-audit.csv")}
             >
               <Download size={15} /> Export
             </Button>
@@ -100,19 +115,24 @@ export function AuditPage() {
           </label>
 
           <div className="segmented">
-            {(["all", "info", "notice", "warning", "critical"] as const).map((option) => (
-              <button
-                key={option}
-                onClick={() => {
-                  setSeverity(option);
-                  setPage(1);
-                }}
-                aria-pressed={severity === option}
-                className={cn("segmented-item", severity === option && "segmented-item-active")}
-              >
-                {option === "all" ? "All" : option}
-              </button>
-            ))}
+            {(["all", "info", "notice", "warning", "critical"] as const).map(
+              (option) => (
+                <button
+                  key={option}
+                  onClick={() => {
+                    setSeverity(option);
+                    setPage(1);
+                  }}
+                  aria-pressed={severity === option}
+                  className={cn(
+                    "segmented-item",
+                    severity === option && "segmented-item-active",
+                  )}
+                >
+                  {option === "all" ? "All" : option}
+                </button>
+              ),
+            )}
           </div>
         </div>
 
@@ -160,7 +180,9 @@ export function AuditPage() {
                       </td>
                       <td className="mono">{event.target}</td>
                       <td>
-                        <Badge tone={severityTone[event.severity]}>{event.severity}</Badge>
+                        <Badge tone={severityTone[event.severity]}>
+                          {event.severity}
+                        </Badge>
                       </td>
                       <td className="mono">{event.ip}</td>
                     </tr>
@@ -188,7 +210,9 @@ export function AuditPage() {
                 </span>
                 <button
                   className="icon-btn"
-                  onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
+                  onClick={() =>
+                    setPage((current) => Math.min(pageCount, current + 1))
+                  }
                   disabled={safePage === pageCount}
                   aria-label="Next page"
                 >

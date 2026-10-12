@@ -5,10 +5,22 @@ import {
   useEffect,
   useMemo,
   useState,
-  type ReactNode
+  type ReactNode,
 } from "react";
-import { approvals as seedApprovals } from "@/data/finance";
-import type { Approval, ApprovalStatus, CurrencyCode, PageId, Role, Theme } from "@/types";
+import {
+  departments,
+  departmentMap,
+  auditEvents,
+  approvals as seedApprovals,
+} from "@/data/finance";
+import type {
+  Approval,
+  ApprovalStatus,
+  CurrencyCode,
+  PageId,
+  Role,
+  Theme,
+} from "@/types";
 
 interface Toast {
   id: number;
@@ -48,8 +60,60 @@ const AppContext = createContext<AppValue | undefined>(undefined);
 const THEME_KEY = "aurora-theme";
 
 export function AppProvider({ children }: { children: ReactNode }) {
+  const [dataRevision, setDataRevision] = useState(0);
+  const [authenticated, setAuthenticated] = useState(false);
+  useEffect(() => {
+    fetch("/api/app/state")
+      .then(async (response) => {
+        if (!response.ok) return;
+        const data = await response.json();
+        setAuthenticated(true);
+        departments.splice(
+          0,
+          departments.length,
+          ...data.collections.departments,
+        );
+        for (const key of Object.keys(departmentMap)) delete departmentMap[key];
+        departments.forEach((d) => {
+          departmentMap[d.id] = d;
+        });
+        auditEvents.splice(
+          0,
+          auditEvents.length,
+          ...data.audit.map(
+            (x: {
+              id: string;
+              at: string;
+              actor: string;
+              action: string;
+              target: string;
+            }) => ({
+              id: x.id,
+              timestamp: x.at,
+              actor: x.actor,
+              actorRole: "Account",
+              action: x.action,
+              target: x.target,
+              severity: "info" as const,
+              ip: "Server",
+              detail: "Persisted application activity",
+            }),
+          ),
+        );
+        setDataRevision((v) => v + 1);
+        setApprovals(data.collections.approvals);
+        setRoleState(
+          ["owner", "finance", "editor"].includes(data.user.role)
+            ? "admin"
+            : data.user.role === "auditor"
+              ? "auditor"
+              : "analyst",
+        );
+      })
+      .catch(() => {});
+  }, []);
   const [page, setPage] = useState<PageId>("overview");
-  const [role, setRoleState] = useState<Role>("admin");
+  const [role, setRoleState] = useState<Role>("analyst");
   const [currency, setCurrency] = useState<CurrencyCode>("USD");
   const [theme, setTheme] = useState<Theme>("light");
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -91,46 +155,87 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setToasts((current) => [...current, { id, title, body, tone }]);
       window.setTimeout(() => dismissToast(id), 3600);
     },
-    [dismissToast]
+    [dismissToast],
   );
 
   /** Switching role can strip access to the current page, so fall back to overview. */
-  const setRole = useCallback((next: Role) => {
-    setRoleState(next);
-    setPage((current) => {
-      if (next === "auditor" && !["overview", "audit", "reports"].includes(current)) {
-        return "overview";
-      }
-      if (next === "analyst" && current === "settings") return "overview";
-      if (next === "analyst" && current === "audit") return "overview";
-      return current;
-    });
-  }, []);
+  const setRole = useCallback(
+    (next: Role) => {
+      if (authenticated) return;
+      setRoleState(next);
+      setPage((current) => {
+        if (
+          next === "auditor" &&
+          !["overview", "audit", "reports"].includes(current)
+        ) {
+          return "overview";
+        }
+        if (next === "analyst" && current === "settings") return "overview";
+        if (next === "analyst" && current === "audit") return "overview";
+        return current;
+      });
+    },
+    [authenticated],
+  );
 
   const decide = useCallback(
     (id: string, status: ApprovalStatus) => {
-      setApprovals((current) =>
-        current.map((approval) =>
-          approval.id === id
-            ? {
-                ...approval,
-                status,
-                chain: approval.chain.map((link) =>
-                  link.state === "waiting"
-                    ? { ...link, state: status === "approved" ? "signed" : "blocked" }
-                    : link
-                )
-              }
-            : approval
-        )
-      );
-      pushToast(
-        status === "approved" ? "Request approved" : "Request rejected",
-        `${id} recorded against your delegated authority and written to the audit log.`,
-        status === "approved" ? "success" : "warning"
-      );
+      if (!authenticated) {
+        window.location.assign("/workspace");
+        return;
+      }
+      const row = approvals.find((x) => x.id === id) as
+        (Approval & { _id: string; _version: number }) | undefined;
+      if (!row) return;
+      fetch("/api/app/command", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          kind: "approvals",
+          id: row._id,
+          version: row._version,
+          status,
+        }),
+      })
+        .then(async (response) => {
+          const result = await response.json();
+          if (!response.ok) throw new Error(result.error);
+          const next = await fetch("/api/app/state").then((r) => r.json());
+          setApprovals(next.collections.approvals);
+          auditEvents.splice(
+            0,
+            auditEvents.length,
+            ...next.audit.map(
+              (event: {
+                id: string;
+                at: string;
+                actor: string;
+                action: string;
+                target: string;
+              }) => ({
+                id: event.id,
+                timestamp: event.at,
+                actor: event.actor,
+                actorRole: "Account",
+                action: event.action,
+                target: event.target,
+                severity: "info" as const,
+                ip: "Server",
+                detail: "Persisted application activity",
+              }),
+            ),
+          );
+          setDataRevision((value) => value + 1);
+          pushToast(
+            "Decision saved",
+            "The server recorded this decision and its audit event.",
+          );
+        })
+        .catch((error) =>
+          pushToast("Could not record decision", error.message, "warning"),
+        );
     },
-    [pushToast]
+    [pushToast, authenticated, approvals],
   );
 
   const value = useMemo<AppValue>(
@@ -139,8 +244,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setPage,
       role,
       setRole,
-      canApprove: role === "admin",
-      canEdit: role === "admin",
+      canApprove: authenticated && role === "admin",
+      canEdit: authenticated && role === "admin",
       currency,
       setCurrency,
       theme,
@@ -151,10 +256,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       decide,
       toasts,
       pushToast,
-      dismissToast
+      dismissToast,
     }),
     [
       page,
+      authenticated,
       role,
       setRole,
       currency,
@@ -165,11 +271,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
       decide,
       toasts,
       pushToast,
-      dismissToast
-    ]
+      dismissToast,
+    ],
   );
 
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={value}>
+      <div key={dataRevision}>{children}</div>
+    </AppContext.Provider>
+  );
 }
 
 export function useApp() {

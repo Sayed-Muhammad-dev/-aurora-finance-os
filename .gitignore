@@ -5,3 +5,8 @@ build
 *.log
 .DS_Store
 .vercel
+
+# Private durable application state
+.app-data/
+*.lock.tmp
+.next-production/

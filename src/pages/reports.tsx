@@ -1,22 +1,43 @@
 import { useMemo, useState } from "react";
-import { Download, FileText, Loader2, Search, TriangleAlert } from "lucide-react";
-import { useApp } from "@/app-context";
-import { Badge, Button, Card, CardHeader, EmptyState } from "@/components/ui/primitives";
+import {
+  Download,
+  FileText,
+  Loader2,
+  Search,
+  TriangleAlert,
+} from "lucide-react";
+
+import {
+  Badge,
+  Button,
+  Card,
+  CardHeader,
+  EmptyState,
+} from "@/components/ui/primitives";
 import { reports } from "@/data/finance";
 import { cn, shortDate } from "@/lib/format";
 import type { ReportStatus } from "@/types";
 
-const statusTone: Record<ReportStatus, "positive" | "info" | "neutral" | "critical"> = {
+const statusTone: Record<
+  ReportStatus,
+  "positive" | "info" | "neutral" | "critical"
+> = {
   ready: "positive",
   generating: "info",
   scheduled: "neutral",
-  failed: "critical"
+  failed: "critical",
 };
 
-const categories = ["All", "Statutory", "Management", "Tax", "Board", "Compliance"] as const;
+const categories = [
+  "All",
+  "Statutory",
+  "Management",
+  "Tax",
+  "Board",
+  "Compliance",
+] as const;
 
 export function ReportsPage() {
-  const { pushToast } = useApp();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<(typeof categories)[number]>("All");
 
@@ -36,10 +57,22 @@ export function ReportsPage() {
     <>
       <div className="stat-grid stat-grid-4">
         {[
-          ["Reports available", String(reports.filter((r) => r.status === "ready").length)],
-          ["Currently generating", String(reports.filter((r) => r.status === "generating").length)],
-          ["Scheduled", String(reports.filter((r) => r.status === "scheduled").length)],
-          ["Failed runs", String(reports.filter((r) => r.status === "failed").length)]
+          [
+            "Reports available",
+            String(reports.filter((r) => r.status === "ready").length),
+          ],
+          [
+            "Currently generating",
+            String(reports.filter((r) => r.status === "generating").length),
+          ],
+          [
+            "Scheduled",
+            String(reports.filter((r) => r.status === "scheduled").length),
+          ],
+          [
+            "Failed runs",
+            String(reports.filter((r) => r.status === "failed").length),
+          ],
         ].map(([label, value]) => (
           <div key={label} className="stat-card stat-card-plain">
             <p className="stat-label">{label}</p>
@@ -53,15 +86,7 @@ export function ReportsPage() {
           title="Report library"
           subtitle="Statutory, management, tax and board reporting for the current period"
           action={
-            <Button
-              onClick={() =>
-                pushToast(
-                  "Report queued",
-                  "A new consolidated pack has been scheduled for tonight.",
-                  "info"
-                )
-              }
-            >
+            <Button onClick={() => window.location.assign("/workspace")}>
               <FileText size={15} /> New report
             </Button>
           }
@@ -84,7 +109,10 @@ export function ReportsPage() {
                 key={option}
                 onClick={() => setCategory(option)}
                 aria-pressed={category === option}
-                className={cn("segmented-item", category === option && "segmented-item-active")}
+                className={cn(
+                  "segmented-item",
+                  category === option && "segmented-item-active",
+                )}
               >
                 {option}
               </button>
@@ -122,7 +150,9 @@ export function ReportsPage() {
                       <FileText size={17} />
                     )}
                   </span>
-                  <Badge tone={statusTone[report.status]}>{report.status}</Badge>
+                  <Badge tone={statusTone[report.status]}>
+                    {report.status}
+                  </Badge>
                 </div>
 
                 <h3 className="report-name">{report.name}</h3>
@@ -141,18 +171,22 @@ export function ReportsPage() {
                   </div>
                   <div>
                     <dt>Size</dt>
-                    <dd>{report.sizeKb > 0 ? `${(report.sizeKb / 1024).toFixed(1)} MB` : "—"}</dd>
+                    <dd>
+                      {report.sizeKb > 0
+                        ? `${(report.sizeKb / 1024).toFixed(1)} MB`
+                        : "—"}
+                    </dd>
                   </div>
                 </dl>
 
                 <div className="report-actions">
                   {report.status === "ready" ? (
-                    report.formats.map((format) => (
+                    ["CSV"].map((format) => (
                       <button
                         key={format}
                         className="format-btn"
                         onClick={() =>
-                          pushToast("Download started", `${report.name} (${format}) is downloading.`)
+                          window.location.assign("/api/app/export/departments")
                         }
                       >
                         <Download size={13} /> {format}
@@ -161,19 +195,15 @@ export function ReportsPage() {
                   ) : report.status === "failed" ? (
                     <button
                       className="format-btn format-btn-danger"
-                      onClick={() =>
-                        pushToast(
-                          "Re-running report",
-                          `${report.name} has been queued again.`,
-                          "warning"
-                        )
-                      }
+                      onClick={() => window.location.assign("/workspace")}
                     >
                       Retry run
                     </button>
                   ) : (
                     <span className="report-pending">
-                      {report.status === "generating" ? "Generating…" : "Scheduled"}
+                      {report.status === "generating"
+                        ? "Generating…"
+                        : "Scheduled"}
                     </span>
                   )}
                 </div>

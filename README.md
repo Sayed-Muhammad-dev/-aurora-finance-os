@@ -1,5 +1,8 @@
 # Aurora Finance OS — Enterprise Financial Reporting Dashboard
 
+> **Application upgrade — October 2026:** This repository now includes a persistent Node application API and an authenticated operations workspace at `/workspace`. Run `npm run admin:bootstrap` once, then follow [the application runbook](docs/FULLSTACK.md). CMS collections use reviewed draft/published snapshots; financial applications use protected operational records. Existing public deployments have not been changed. Older frontend descriptions below document the original interface and sample data.
+
+
 A group-level financial reporting and control dashboard for a multi-entity
 company: consolidated P&L across five legal entities and five currencies,
 departmental variance analysis, a multi-step approval workflow, an append-only

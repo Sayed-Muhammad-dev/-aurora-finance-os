@@ -6,7 +6,12 @@
   "scripts": {
     "dev": "vite --host 0.0.0.0",
     "build": "tsc && vite build",
-    "preview": "vite preview --host 0.0.0.0"
+    "preview": "vite preview --host 0.0.0.0",
+    "admin:bootstrap": "node --env-file-if-exists=.env server/bootstrap.mjs",
+    "db:provision": "node --env-file-if-exists=.env server/provision.mjs",
+    "test:server": "node --test server/backend.test.mjs",
+    "dev:api": "node --env-file-if-exists=.env server/http.mjs",
+    "start:full": "node --env-file-if-exists=.env server/http.mjs --production"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.3.4",
@@ -15,7 +20,9 @@
     "react-dom": "^19.0.0",
     "recharts": "^2.15.0",
     "typescript": "^5.7.2",
-    "vite": "^6.0.7"
+    "vite": "^6.0.7",
+    "@neondatabase/serverless": "^1.0.2",
+    "framer-motion": "^12.23.24"
   },
   "devDependencies": {
     "@types/react": "^19.2.17",

@@ -1,0 +1,135 @@
+{
+  "id": "aurora",
+  "name": "Aurora Finance OS",
+  "accent": "#ccb07a",
+  "notice": "Sample entities and indicative currency rates. Approval decisions are persisted; this application does not execute bank payments.",
+  "collections": {
+    "departments": {
+      "label": "Departments",
+      "cms": false,
+      "fields": {
+        "id": {
+          "type": "text",
+          "optional": true
+        },
+        "name": {
+          "type": "text",
+          "optional": false
+        },
+        "entityId": {
+          "type": "text",
+          "optional": false,
+          "options": [
+            "e-us",
+            "e-eu",
+            "e-uk",
+            "e-jp",
+            "e-sg"
+          ]
+        },
+        "owner": {
+          "type": "text",
+          "optional": false
+        },
+        "revenue": {
+          "type": "number",
+          "min": 0
+        },
+        "expense": {
+          "type": "number",
+          "min": 0
+        },
+        "budget": {
+          "type": "number",
+          "min": 0
+        },
+        "headcount": {
+          "type": "number",
+          "min": 0
+        }
+      }
+    },
+    "approvals": {
+      "label": "Approvals",
+      "cms": false,
+      "fields": {
+        "id": {
+          "type": "text",
+          "optional": true
+        },
+        "title": {
+          "type": "text",
+          "optional": false
+        },
+        "description": {
+          "type": "text",
+          "optional": false
+        },
+        "requester": {
+          "type": "text",
+          "optional": false
+        },
+        "departmentId": {
+          "type": "text",
+          "optional": false,
+          "reference": "departments"
+        },
+        "amount": {
+          "type": "number",
+          "min": 0
+        },
+        "currency": {
+          "type": "text",
+          "options": [
+            "USD",
+            "EUR",
+            "GBP",
+            "JPY",
+            "SGD"
+          ]
+        },
+        "submitted": {
+          "type": "text",
+          "optional": false
+        },
+        "status": {
+          "type": "text",
+          "options": [
+            "pending",
+            "approved",
+            "rejected"
+          ]
+        },
+        "priority": {
+          "type": "text",
+          "options": [
+            "standard",
+            "elevated",
+            "critical"
+          ]
+        },
+        "policy": {
+          "type": "text",
+          "optional": false
+        },
+        "chain": {
+          "type": "array",
+          "fields": {
+            "role": {
+              "type": "text",
+              "optional": false
+            },
+            "name": {
+              "type": "text",
+              "optional": false
+            },
+            "state": {
+              "type": "text",
+              "optional": false
+            }
+          }
+        }
+      }
+    }
+  }
+}

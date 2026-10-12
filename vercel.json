@@ -1,0 +1,23 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "functions": {
+    "api/app/[...path].mjs": {
+      "includeFiles": "server/**"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/app/:path*",
+      "destination": "/api/app/:path*"
+    },
+    {
+      "source": "/workspace",
+      "destination": "/workspace.html"
+    },
+    {
+      "source": "/((?!api/|workspace-assets/|assets/).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

@@ -1,21 +1,31 @@
 import { useMemo, useState } from "react";
 import { Check, CircleDot, Lock, ShieldAlert, X } from "lucide-react";
 import { useApp } from "@/app-context";
-import { Badge, Button, Card, CardHeader, EmptyState, Modal } from "@/components/ui/primitives";
+import {
+  Badge,
+  Button,
+  Card,
+  CardHeader,
+  EmptyState,
+  Modal,
+} from "@/components/ui/primitives";
 import { departmentMap } from "@/data/finance";
 import { cn, nativeMoney, shortDate } from "@/lib/format";
 import type { Approval, ApprovalPriority, ApprovalStatus } from "@/types";
 
-const priorityTone: Record<ApprovalPriority, "neutral" | "warning" | "critical"> = {
+const priorityTone: Record<
+  ApprovalPriority,
+  "neutral" | "warning" | "critical"
+> = {
   standard: "neutral",
   elevated: "warning",
-  critical: "critical"
+  critical: "critical",
 };
 
 const statusTone: Record<ApprovalStatus, "info" | "positive" | "critical"> = {
   pending: "info",
   approved: "positive",
-  rejected: "critical"
+  rejected: "critical",
 };
 
 export function ApprovalsPage() {
@@ -24,17 +34,20 @@ export function ApprovalsPage() {
   const [selected, setSelected] = useState<Approval | null>(null);
 
   const rows = useMemo(
-    () => approvals.filter((approval) => filter === "all" || approval.status === filter),
-    [approvals, filter]
+    () =>
+      approvals.filter(
+        (approval) => filter === "all" || approval.status === filter,
+      ),
+    [approvals, filter],
   );
 
   const counts = useMemo(
     () => ({
       pending: approvals.filter((a) => a.status === "pending").length,
       approved: approvals.filter((a) => a.status === "approved").length,
-      rejected: approvals.filter((a) => a.status === "rejected").length
+      rejected: approvals.filter((a) => a.status === "rejected").length,
     }),
-    [approvals]
+    [approvals],
   );
 
   function act(approval: Approval, status: ApprovalStatus) {
@@ -49,7 +62,7 @@ export function ApprovalsPage() {
           ["Awaiting your sign-off", String(counts.pending)],
           ["Approved this quarter", String(counts.approved)],
           ["Rejected this quarter", String(counts.rejected)],
-          ["Median time to decision", "1.8 days"]
+          ["Median time to decision", "1.8 days"],
         ].map(([label, value]) => (
           <div key={label} className="stat-card stat-card-plain">
             <p className="stat-label">{label}</p>
@@ -62,8 +75,8 @@ export function ApprovalsPage() {
         <div className="notice notice-warning">
           <Lock size={16} />
           <p>
-            Your current role is read-only for approvals. Switch to <strong>Administrator</strong> in
-            the topbar to sign off requests.
+            Your current role is read-only for approvals. Sign in to your
+            authorised account from the workspace to sign off requests.
           </p>
         </div>
       ) : null}
@@ -79,14 +92,17 @@ export function ApprovalsPage() {
                   ["pending", "Pending"],
                   ["approved", "Approved"],
                   ["rejected", "Rejected"],
-                  ["all", "All"]
+                  ["all", "All"],
                 ] as const
               ).map(([id, label]) => (
                 <button
                   key={id}
                   onClick={() => setFilter(id)}
                   aria-pressed={filter === id}
-                  className={cn("segmented-item", filter === id && "segmented-item-active")}
+                  className={cn(
+                    "segmented-item",
+                    filter === id && "segmented-item-active",
+                  )}
                 >
                   {label}
                 </button>
@@ -109,7 +125,9 @@ export function ApprovalsPage() {
           <div className="approval-list">
             {rows.map((approval) => {
               const department = departmentMap[approval.departmentId];
-              const signed = approval.chain.filter((link) => link.state === "signed").length;
+              const signed = approval.chain.filter(
+                (link) => link.state === "signed",
+              ).length;
 
               return (
                 <article key={approval.id} className="approval">
@@ -120,14 +138,20 @@ export function ApprovalsPage() {
                       <p>{approval.description}</p>
                     </div>
                     <div className="approval-amount">
-                      <strong>{nativeMoney(approval.amount, approval.currency)}</strong>
+                      <strong>
+                        {nativeMoney(approval.amount, approval.currency)}
+                      </strong>
                       <span>{approval.currency}</span>
                     </div>
                   </div>
 
                   <div className="approval-meta">
-                    <Badge tone={statusTone[approval.status]}>{approval.status}</Badge>
-                    <Badge tone={priorityTone[approval.priority]}>{approval.priority}</Badge>
+                    <Badge tone={statusTone[approval.status]}>
+                      {approval.status}
+                    </Badge>
+                    <Badge tone={priorityTone[approval.priority]}>
+                      {approval.priority}
+                    </Badge>
                     <span>{department?.name}</span>
                     <span>Raised by {approval.requester}</span>
                     <span>{shortDate(approval.submitted)}</span>
@@ -141,7 +165,11 @@ export function ApprovalsPage() {
                         className={cn("chain-step", `chain-${link.state}`)}
                       >
                         <span className="chain-dot">
-                          {link.state === "signed" ? <Check size={11} /> : <CircleDot size={11} />}
+                          {link.state === "signed" ? (
+                            <Check size={11} />
+                          ) : (
+                            <CircleDot size={11} />
+                          )}
                         </span>
                         <span className="chain-text">
                           <strong>{link.role}</strong>
@@ -160,12 +188,18 @@ export function ApprovalsPage() {
                       <span className="chain-progress">
                         {signed} of {approval.chain.length} signed
                       </span>
-                      <Button variant="ghost" onClick={() => setSelected(approval)}>
+                      <Button
+                        variant="ghost"
+                        onClick={() => setSelected(approval)}
+                      >
                         Details
                       </Button>
                       {approval.status === "pending" && canApprove ? (
                         <>
-                          <Button variant="danger" onClick={() => act(approval, "rejected")}>
+                          <Button
+                            variant="danger"
+                            onClick={() => act(approval, "rejected")}
+                          >
                             <X size={15} /> Reject
                           </Button>
                           <Button onClick={() => act(approval, "approved")}>
@@ -185,15 +219,22 @@ export function ApprovalsPage() {
       <Modal
         open={Boolean(selected)}
         title={selected ? `${selected.id} · ${selected.title}` : ""}
-        subtitle={selected ? departmentMap[selected.departmentId]?.name : undefined}
+        subtitle={
+          selected ? departmentMap[selected.departmentId]?.name : undefined
+        }
         onClose={() => setSelected(null)}
         footer={
           selected && selected.status === "pending" && canApprove ? (
             <>
-              <Button variant="danger" onClick={() => act(selected, "rejected")}>
+              <Button
+                variant="danger"
+                onClick={() => act(selected, "rejected")}
+              >
                 Reject request
               </Button>
-              <Button onClick={() => act(selected, "approved")}>Approve request</Button>
+              <Button onClick={() => act(selected, "approved")}>
+                Approve request
+              </Button>
             </>
           ) : (
             <Button variant="secondary" onClick={() => setSelected(null)}>
@@ -240,9 +281,16 @@ export function ApprovalsPage() {
 
             <ol className="chain chain-vertical">
               {selected.chain.map((link, index) => (
-                <li key={index} className={cn("chain-step", `chain-${link.state}`)}>
+                <li
+                  key={index}
+                  className={cn("chain-step", `chain-${link.state}`)}
+                >
                   <span className="chain-dot">
-                    {link.state === "signed" ? <Check size={11} /> : <CircleDot size={11} />}
+                    {link.state === "signed" ? (
+                      <Check size={11} />
+                    ) : (
+                      <CircleDot size={11} />
+                    )}
                   </span>
                   <span className="chain-text">
                     <strong>{link.role}</strong>

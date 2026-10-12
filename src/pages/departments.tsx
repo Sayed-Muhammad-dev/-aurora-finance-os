@@ -1,18 +1,28 @@
 import { useMemo, useState } from "react";
 import { ArrowDown, ArrowUp, Download, Search } from "lucide-react";
 import { useApp } from "@/app-context";
-import { Badge, Button, Card, CardHeader, EmptyState, Meter } from "@/components/ui/primitives";
+import {
+  Badge,
+  Button,
+  Card,
+  CardHeader,
+  EmptyState,
+  Meter,
+} from "@/components/ui/primitives";
 import { departments, entities, entityMap } from "@/data/finance";
 import { cn, money, ratio } from "@/lib/format";
+import { exportRows } from "@/lib/download";
 
 type SortKey = "name" | "revenue" | "expense" | "variance" | "headcount";
 
 export function DepartmentsPage() {
-  const { currency, pushToast, canEdit } = useApp();
+  const { currency, canEdit } = useApp();
 
   const [query, setQuery] = useState("");
   const [entityFilter, setEntityFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState<"all" | "over" | "under">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "over" | "under">(
+    "all",
+  );
   const [sortKey, setSortKey] = useState<SortKey>("expense");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
@@ -24,9 +34,12 @@ export function DepartmentsPage() {
         const haystack = `${department.name} ${department.owner} ${entityMap[department.entityId].name}`;
         if (!haystack.toLowerCase().includes(needle)) return false;
       }
-      if (entityFilter !== "all" && department.entityId !== entityFilter) return false;
-      if (statusFilter === "over" && department.expense <= department.budget) return false;
-      if (statusFilter === "under" && department.expense > department.budget) return false;
+      if (entityFilter !== "all" && department.entityId !== entityFilter)
+        return false;
+      if (statusFilter === "over" && department.expense <= department.budget)
+        return false;
+      if (statusFilter === "under" && department.expense > department.budget)
+        return false;
       return true;
     });
 
@@ -36,7 +49,8 @@ export function DepartmentsPage() {
       if (sortKey === "revenue") result = a.revenue - b.revenue;
       if (sortKey === "expense") result = a.expense - b.expense;
       if (sortKey === "headcount") result = a.headcount - b.headcount;
-      if (sortKey === "variance") result = a.budget - a.expense - (b.budget - b.expense);
+      if (sortKey === "variance")
+        result = a.budget - a.expense - (b.budget - b.expense);
       return sortDir === "asc" ? result : -result;
     });
   }, [query, entityFilter, statusFilter, sortKey, sortDir]);
@@ -46,9 +60,9 @@ export function DepartmentsPage() {
       revenue: rows.reduce((sum, d) => sum + d.revenue, 0),
       expense: rows.reduce((sum, d) => sum + d.expense, 0),
       budget: rows.reduce((sum, d) => sum + d.budget, 0),
-      headcount: rows.reduce((sum, d) => sum + d.headcount, 0)
+      headcount: rows.reduce((sum, d) => sum + d.headcount, 0),
     }),
-    [rows]
+    [rows],
   );
 
   function toggleSort(key: SortKey) {
@@ -59,7 +73,13 @@ export function DepartmentsPage() {
     }
   }
 
-  const SortButton = ({ column, children }: { column: SortKey; children: React.ReactNode }) => (
+  const SortButton = ({
+    column,
+    children,
+  }: {
+    column: SortKey;
+    children: React.ReactNode;
+  }) => (
     <button className="sort-btn" onClick={() => toggleSort(column)}>
       {children}
       {sortKey === column ? (
@@ -79,7 +99,7 @@ export function DepartmentsPage() {
           ["Revenue in view", money(totals.revenue, currency, true)],
           ["Expense in view", money(totals.expense, currency, true)],
           ["Budget in view", money(totals.budget, currency, true)],
-          ["Headcount", totals.headcount.toLocaleString("en-US")]
+          ["Headcount", totals.headcount.toLocaleString("en-US")],
         ].map(([label, value]) => (
           <div key={label} className="stat-card stat-card-plain">
             <p className="stat-label">{label}</p>
@@ -95,9 +115,7 @@ export function DepartmentsPage() {
           action={
             <Button
               variant="secondary"
-              onClick={() =>
-                pushToast("Export queued", `${rows.length} departments will be emailed as XLSX.`, "info")
-              }
+              onClick={() => exportRows(rows, "aurora-departments.csv")}
             >
               <Download size={15} /> Export
             </Button>
@@ -136,14 +154,17 @@ export function DepartmentsPage() {
               [
                 ["all", "All"],
                 ["under", "Within budget"],
-                ["over", "Over budget"]
+                ["over", "Over budget"],
               ] as const
             ).map(([id, label]) => (
               <button
                 key={id}
                 onClick={() => setStatusFilter(id)}
                 aria-pressed={statusFilter === id}
-                className={cn("segmented-item", statusFilter === id && "segmented-item-active")}
+                className={cn(
+                  "segmented-item",
+                  statusFilter === id && "segmented-item-active",
+                )}
               >
                 {label}
               </button>
@@ -203,14 +224,20 @@ export function DepartmentsPage() {
                     <tr key={department.id}>
                       <td className="strong">{department.name}</td>
                       <td>
-                        <Badge tone="neutral">{entityMap[department.entityId].currency}</Badge>{" "}
+                        <Badge tone="neutral">
+                          {entityMap[department.entityId].currency}
+                        </Badge>{" "}
                         {entityMap[department.entityId].region}
                       </td>
                       <td>{department.owner}</td>
                       <td className="num">
-                        {department.revenue > 0 ? money(department.revenue, currency, true) : "—"}
+                        {department.revenue > 0
+                          ? money(department.revenue, currency, true)
+                          : "—"}
                       </td>
-                      <td className="num">{money(department.expense, currency, true)}</td>
+                      <td className="num">
+                        {money(department.expense, currency, true)}
+                      </td>
                       <td className={over ? "num negative" : "num positive"}>
                         {over ? "-" : "+"}
                         {money(Math.abs(variance), currency, true)}
@@ -218,7 +245,13 @@ export function DepartmentsPage() {
                       <td className="util">
                         <Meter
                           value={used}
-                          tone={over ? "critical" : used > 92 ? "warning" : "positive"}
+                          tone={
+                            over
+                              ? "critical"
+                              : used > 92
+                                ? "warning"
+                                : "positive"
+                          }
                           delayMs={index * 60}
                         />
                         <span className="util-value">{used.toFixed(0)}%</span>
@@ -235,7 +268,8 @@ export function DepartmentsPage() {
         <p className="table-note">
           {canEdit
             ? "As an administrator you can adjust approved budgets from each department record."
-            : "Budgets are read-only in your role. Switch to Administrator to edit."}
+            : "Budgets are read-only here. Sign in to an authorised account to manage them."}
+          {canEdit ? <a href="/workspace?collection=departments"> Manage department budgets →</a> : null}
         </p>
       </Card>
     </>
