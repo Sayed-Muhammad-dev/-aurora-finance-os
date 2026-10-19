@@ -8,10 +8,12 @@
     "build": "tsc && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "admin:bootstrap": "node --env-file-if-exists=.env server/bootstrap.mjs",
-    "db:provision": "node --env-file-if-exists=.env server/provision.mjs",
+    "db:provision": "npm run db:migrate:deploy",
     "test:server": "node --test server/backend.test.mjs",
     "dev:api": "node --env-file-if-exists=.env server/http.mjs",
-    "start:full": "node --env-file-if-exists=.env server/http.mjs --production"
+    "start:full": "node --env-file-if-exists=.env server/http.mjs --production",
+    "db:migrate:deploy": "prisma migrate deploy",
+    "db:migrate:status": "prisma migrate status"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.3.4",
@@ -22,7 +24,9 @@
     "typescript": "^5.7.2",
     "vite": "^6.0.7",
     "@neondatabase/serverless": "^1.0.2",
-    "framer-motion": "^12.23.24"
+    "framer-motion": "^12.23.24",
+    "prisma": "7.10.0",
+    "dotenv": "^17.4.2"
   },
   "devDependencies": {
     "@types/react": "^19.2.17",
